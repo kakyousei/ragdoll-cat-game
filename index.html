@@ -102,6 +102,42 @@
   .diary p{margin:0;}
   .reset{margin-top:12px; text-align:right;}
   .reset button{background:none; border:none; color:#b08a72; cursor:pointer; font-size:12.5px; text-decoration:underline;}
+  /* ---------- gacha ---------- */
+  .gachaBtn{display:block; width:100%; margin-top:12px; border:none; cursor:pointer; border-radius:16px; padding:12px;
+    font-size:16.5px; font-weight:800; color:#7a4a00; background:linear-gradient(180deg,#ffe98a,#ffd93b);
+    box-shadow:0 4px 0 #e0a800, 0 8px 16px rgba(138,90,68,.15); transition:transform .08s;}
+  .gachaBtn:active{transform:translateY(3px); box-shadow:0 1px 0 #e0a800;}
+  .gachaBtn small{display:block; font-weight:500; font-size:12px; opacity:.75; margin-top:2px;}
+  #gachaOverlay{position:absolute; inset:0; background:rgba(255,246,236,.94); display:none; flex-direction:column;
+    align-items:center; justify-content:center; gap:10px; z-index:5; padding:16px;}
+  #gachaOverlay.show{display:flex;}
+  #gachaBall{position:relative; width:110px; height:110px;}
+  .bTop{position:absolute; left:0; top:0; width:110px; height:55px; background:linear-gradient(180deg,#ff8fab,#ff5d8f);
+    border-radius:55px 55px 0 0; border:3px solid #4a3428; border-bottom:none; transition:transform .45s ease;}
+  .bBottom{position:absolute; left:0; bottom:0; width:110px; height:55px; background:#fff;
+    border-radius:0 0 55px 55px; border:3px solid #4a3428; border-top:none; transition:transform .45s ease;}
+  .bBand{position:absolute; left:0; top:52px; width:110px; height:6px; background:#4a3428; transition:opacity .2s;}
+  .bBtn{position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:26px; height:26px; background:#fff;
+    border:4px solid #4a3428; border-radius:50%; z-index:2; transition:opacity .2s;}
+  #gachaBall.throw{animation:ballThrow .7s ease;}
+  @keyframes ballThrow{0%{transform:translate(-170px,-130px) rotate(-160deg) scale(.7)}60%{transform:translate(0,8px) rotate(10deg) scale(1)}80%{transform:translate(0,-16px)}100%{transform:translate(0,0)}}
+  #gachaBall.shake{animation:ballShake .3s ease 3;}
+  @keyframes ballShake{0%,100%{transform:rotate(0)}25%{transform:rotate(-9deg)}75%{transform:rotate(9deg)}}
+  #gachaBall.cracked .bTop{transform:translate(-28px,-32px) rotate(-24deg);}
+  #gachaBall.cracked .bBottom{transform:translate(28px,28px) rotate(18deg);}
+  #gachaBall.cracked .bBtn, #gachaBall.cracked .bBand{opacity:0;}
+  #gachaPrize{display:none; text-align:center;}
+  #gachaPrize.show{display:block; animation:popOut .45s ease;}
+  #gachaPrizeImg{width:170px; height:170px; object-fit:cover; border-radius:16px; border:4px solid #ffd93b;
+    box-shadow:0 8px 20px rgba(0,0,0,.2); background:#fff;}
+  #gachaPrizeLabel{font-size:22px; font-weight:800; margin-top:8px;}
+  #gachaPrizeCoins{font-size:18px; font-weight:700; color:#d9930d;}
+  @keyframes popOut{0%{transform:scale(.3); opacity:0}70%{transform:scale(1.12)}100%{transform:scale(1); opacity:1}}
+  #gachaText{font-size:15.5px; font-weight:600; min-height:22px; text-align:center;}
+  #gachaBtns{display:none; gap:8px;}
+  #gachaBtns.show{display:flex;}
+  #gachaBtns button{border:none; cursor:pointer; border-radius:999px; padding:8px 18px; font-size:14.5px; font-weight:700;
+    background:linear-gradient(180deg,#fff,#ffeef4); color:var(--ink); box-shadow:0 3px 0 #ffc2d4;}
   footer{margin-top:18px; font-size:12.5px; opacity:.6; text-align:center;}
 </style>
 </head>
@@ -131,6 +167,12 @@
         <input id="nameInput" maxlength="10" value="奶糖">
         <span class="stageLabel" id="stageLabel">幼猫期</span>
       </div>
+      <div id="gachaOverlay">
+        <div id="gachaBall"><div class="bTop"></div><div class="bBottom"></div><div class="bBand"></div><div class="bBtn"></div></div>
+        <div id="gachaPrize"><img id="gachaPrizeImg" alt=""><div id="gachaPrizeLabel"></div><div id="gachaPrizeCoins"></div></div>
+        <div id="gachaText"></div>
+        <div id="gachaBtns"><button id="btnGachaAgain"></button><button id="btnGachaClose"></button></div>
+      </div>
       <div class="thumbs" id="thumbs">
         <button data-photo="main" class="active"><img src="" data-photo="main" alt=""></button>
         <button data-photo="play"><img src="" data-photo="play" alt=""></button>
@@ -147,6 +189,7 @@
       <button class="act" id="btnSleep">🌙 <span data-i18n="sleep">睡觉</span><small data-i18n="sleepSub">精力 +30</small></button>
       <button class="act" id="btnWork">🎁 <span data-i18n="work">卖萌打工</span><small data-i18n="workSub">金币 +12</small></button>
     </div>
+    <button class="gachaBtn" id="btnGacha">🎱 <span data-i18n="gacha">神奇球抽奖</span><small data-i18n="gachaSub">精力 -5 · 赢金币</small></button>
   </div>
 
   <!-- right: stats -->
@@ -209,7 +252,13 @@
       bathSay:"洗得香喷喷，毛毛蓬蓬的～", groomSay:"梳毛毛好舒服，尾巴摇起来了。",
       sleepOnSay:"晚安……呼……呼……", sleepOffSay:"睡饱啦！精神满满！",
       workSay:"卖萌成功！赚到 12 金币，奖励我小鱼干吗？", workTired:"没力气卖萌了，先休息一下吧。",
-      noCoins:"金币不够啦，去卖萌打工赚一点吧。", renameSay:"我叫 {name} ！记住啦～",
+      noCoins:"金币不够啦，去卖萌打工赚一点吧。",
+      gacha:"神奇球抽奖", gachaSub:"精力 -5 · 赢金币",
+      gachaThrow:"{name} 扔出了神奇球——会蹦出什么呢？",
+      gachaLabels:["🥇 一等奖小猫！","🥈 二等奖小猫！","🥉 三等奖小猫！"],
+      logPrizes:["一等奖","二等奖","三等奖"],
+      gachaCoins:"+{coins} 金币", gachaTired:"精力不够啦，先睡一觉再来抽吧。",
+      gachaAgain:"再抽一次", gachaClose:"收起来", logGacha:"神奇球抽奖：{prize}，+{coins} 金币。", renameSay:"我叫 {name} ！记住啦～",
       grewSay:"✨ {name} 长大啦，进入{stage}！",
       hungry:"肚肚饿扁了……有吃的吗？", dirty:"毛毛脏脏的，想洗澡了。", sleepy:"眼皮打架了……想睡觉。",
       dayTag:"第{d}天 · ",
@@ -253,7 +302,13 @@
       bathSay:"いい匂い、毛がふわふわ〜", groomSay:"ブラッシング気持ちいい、しっぽが揺れてる。",
       sleepOnSay:"おやすみ……すー……すー……", sleepOffSay:"よく寝た！元気いっぱい！",
       workSay:"萌え成功！12コイン稼いだよ、煮干しのご褒美は？", workTired:"萌える元気がない……先に休ませて。",
-      noCoins:"コインが足りないよ、萌えバイトで稼ごう。", renameSay:"私は {name}！覚えたよ～",
+      noCoins:"コインが足りないよ、萌えバイトで稼ごう。",
+      gacha:"ふしぎボール抽選", gachaSub:"元気 -5 · コインが当たる",
+      gachaThrow:"{name} がふしぎボールを投げた——何が出るかな？",
+      gachaLabels:["🥇 1等賞にゃんこ！","🥈 2等賞にゃんこ！","🥉 3等賞にゃんこ！"],
+      logPrizes:["1等賞","2等賞","3等賞"],
+      gachaCoins:"+{coins} コイン", gachaTired:"元気が足りないよ、先に寝てから抽いてね。",
+      gachaAgain:"もう一度", gachaClose:"閉じる", logGacha:"ふしぎボール抽選：{prize}、+{coins} コイン。", renameSay:"私は {name}！覚えたよ～",
       grewSay:"✨ {name} が大きくなって、{stage} になった！",
       hungry:"お腹ぺこぺこ……何か食べたい。", dirty:"毛が汚れちゃった、お風呂に入りたい。", sleepy:"まぶたが重い……眠い。",
       dayTag:"{d}日目 · ",
@@ -297,7 +352,13 @@
       bathSay:"All clean and fluffy~", groomSay:"Brushing feels great, my tail is swaying.",
       sleepOnSay:"Good night… zzz…", sleepOffSay:"All rested! Full of energy!",
       workSay:"Charm success! Earned 12 coins — dried fish as a reward?", workTired:"No energy to be cute… let me rest first.",
-      noCoins:"Not enough coins — earn some with the Charm Job.", renameSay:"I'm {name}! Remember it~",
+      noCoins:"Not enough coins — earn some with the Charm Job.",
+      gacha:"Mystery Ball Draw", gachaSub:"Energy -5 · Win coins",
+      gachaThrow:"{name} threw a Mystery Ball — what's inside?",
+      gachaLabels:["🥇 1st Prize Cat!","🥈 2nd Prize Cat","🥉 3rd Prize Cat"],
+      logPrizes:["1st prize","2nd prize","3rd prize"],
+      gachaCoins:"+{coins} coins", gachaTired:"Not enough energy — take a nap first.",
+      gachaAgain:"Draw again", gachaClose:"Close", logGacha:"Mystery Ball draw: {prize}, +{coins} coins.", renameSay:"I'm {name}! Remember it~",
       grewSay:"✨ {name} grew up into the {stage} stage!",
       hungry:"My tummy is flat… any food?", dirty:"My fur is dirty, I want a bath.", sleepy:"My eyelids are heavy… so sleepy.",
       dayTag:"Day {d} · ",
@@ -374,6 +435,7 @@
         for(var k in e.params) map[k]=e.params[k];
         if(typeof map.stageIdx==="number") map.stage=T.stages[map.stageIdx].name;
         if(map.foodKey) map.food=T.foods[map.foodKey].name;
+        if(typeof map.prizeIdx==="number"){ map.prize=T.logPrizes[map.prizeIdx]; }
         var p=document.createElement("p");
         p.textContent = fmt(T.dayTag, {d:e.day}) + fmt(T[e.key]||"", map);
         diaryEl.appendChild(p);
@@ -452,6 +514,7 @@
       fb[f].querySelector(".fdesc").textContent=fd.desc;
     }
     renderDiary();
+    $("btnGachaAgain").textContent=T.gachaAgain; $("btnGachaClose").textContent=T.gachaClose;
     $("catPhoto").alt=T.catAlt;
     var tb=document.querySelectorAll("#thumbs button");
     for(var t=0;t<tb.length;t++) tb[t].title=T.thumbTitles[t] || "";
@@ -536,6 +599,40 @@
       S=fresh(); LOG=[]; renderDiary(); say(T.hello); log("logNew"); render();
     }
   };
+
+  /* ---------- gacha: mystery ball draw ---------- */
+  var PRIZE_COINS=[50,25,10];
+  var PRIZE_PHOTOS=["sakura","main","play"];
+  var gachaBusy=false;
+  function rollPrize(){ var r=Math.random(); return r<0.10?0:(r<0.40?1:2); }
+  function playGacha(){
+    if(gachaBusy) return;
+    wakeCheck("gacha");
+    if(S.energy<5){ say(T.gachaTired); return; }
+    gachaBusy=true; S.energy=clamp(S.energy-5); grow(2);
+    var ov=$("gachaOverlay"), ball=$("gachaBall"), prize=$("gachaPrize"), btns=$("gachaBtns");
+    ov.classList.add("show"); prize.classList.remove("show"); btns.classList.remove("show");
+    ball.style.display=""; ball.className=""; void ball.offsetWidth; ball.classList.add("throw");
+    $("gachaText").textContent=fmt(T.gachaThrow,{name:S.name});
+    render();
+    setTimeout(function(){ ball.classList.add("shake"); },750);
+    setTimeout(function(){ ball.classList.add("cracked"); },1750);
+    setTimeout(function(){
+      var idx=rollPrize(); var coins=PRIZE_COINS[idx];
+      S.coins+=coins;
+      ball.style.display="none";
+      $("gachaPrizeImg").src=PHOTOS[PRIZE_PHOTOS[idx]];
+      $("gachaPrizeLabel").textContent=T.gachaLabels[idx];
+      $("gachaPrizeCoins").textContent=fmt(T.gachaCoins,{coins:coins});
+      $("gachaText").textContent="";
+      prize.classList.add("show"); btns.classList.add("show");
+      hearts(4); log("logGacha",{prizeIdx:idx, coins:coins});
+      gachaBusy=false; render();
+    },2250);
+  }
+  $("btnGacha").onclick=playGacha;
+  $("btnGachaAgain").onclick=function(){ playGacha(); };
+  $("btnGachaClose").onclick=function(){ $("gachaOverlay").classList.remove("show"); };
 
   /* ---------- ambient life: time passing ---------- */
   setInterval(function(){

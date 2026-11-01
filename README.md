@@ -12,6 +12,7 @@
 
 - 🤲 **抚摸 / 🪮 梳毛**：提升亲密度，小猫会冒爱心、打呼噜
 - 🧶 **玩耍**：提升快乐，消耗精力
+- 🎱 **神奇球抽奖**：小猫扔出神奇球，球裂开会蹦出小猫，随机一/二/三等奖，金币 +50 / +25 / +10（消耗精力 5）
 - 🍽️ **小食堂**：用金币买猫粮、罐头、小鱼干
 - 🎁 **卖萌打工**：赚金币（先赚钱，再喂好吃的）
 - 🛁 **洗澡**：恢复清洁度，洗得香喷喷
@@ -36,6 +37,7 @@
 
 - 🤲 **なでる / 🪮 ブラッシング**：親密度アップ。ハートが出てゴロゴロ言います
 - 🧶 **遊ぶ**：幸せアップ、元気を消費します
+- 🎱 **ふしぎボール抽選**：猫がボールを投げると、割れて中からにゃんこが出ます。1/2/3等賞でコイン +50 / +25 / +10（元気 -5）
 - 🍽️ **ごはん屋さん**：コインでカリカリ・缶詰・煮干しを買えます
 - 🎁 **萌えバイト**：コインを稼げます（まず稼いで、おいしいものを買おう）
 - 🛁 **お風呂**：清潔度が回復して、いい匂いに
@@ -60,6 +62,7 @@ A little ragdoll-cat raising game that runs in your browser. Adopt a soft ragdol
 
 - 🤲 **Pet / 🪮 Brush**: raises Love — hearts appear and the cat purrs
 - 🧶 **Play**: raises Happiness, uses Energy
+- 🎱 **Mystery Ball Draw**: the cat throws a ball that cracks open to reveal a prize cat — 1st / 2nd / 3rd prize wins +50 / +25 / +10 coins (costs 5 Energy)
 - 🍽️ **Snack Shop**: spend coins on kibble, canned food, and dried fish
 - 🎁 **Charm Job**: earn coins (earn first, then buy treats)
 - 🛁 **Bath**: restores Cleanliness, leaves it smelling nice
