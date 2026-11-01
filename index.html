@@ -362,11 +362,25 @@
     return cur;
   }
   function say(text){ speechEl.textContent = text; }
-  function log(text){
-    var p=document.createElement("p");
-    p.textContent = fmt(T.dayTag, {d:S.day}) + text;
-    diaryEl.prepend(p);
-    while(diaryEl.children.length>30) diaryEl.removeChild(diaryEl.lastChild);
+  var LOG=[];
+  function log(key, params){
+    LOG.unshift({day:S.day, key:key, params:params||{}});
+    if(LOG.length>30) LOG.length=30;
+    renderDiary();
+  }
+  function renderDiary(){
+    diaryEl.innerHTML="";
+    for(var i=0;i<LOG.length;i++){
+      (function(e){
+        var map={};
+        for(var k in e.params) map[k]=e.params[k];
+        if(typeof map.stageIdx==="number") map.stage=T.stages[map.stageIdx].name;
+        if(map.foodKey) map.food=T.foods[map.foodKey].name;
+        var p=document.createElement("p");
+        p.textContent = fmt(T.dayTag, {d:e.day}) + fmt(T[e.key]||"", map);
+        diaryEl.appendChild(p);
+      })(LOG[i]);
+    }
   }
   function hearts(n){
     for(var i=0;i<n;i++){
@@ -429,7 +443,7 @@
     var els=document.querySelectorAll("[data-i18n]");
     for(var i=0;i<els.length;i++){
       var key=els[i].getAttribute("data-i18n");
-      if(T[key]) els[i].textContent=T[key];
+      if(Object.prototype.hasOwnProperty.call(T, key)) els[i].textContent=T[key];
     }
     var lb=document.querySelectorAll("#langSwitch button");
     for(var j=0;j<lb.length;j++) lb[j].classList.toggle("active", lb[j].getAttribute("data-lang")===LANG);
@@ -439,6 +453,7 @@
       fb[f].querySelector(".fname").textContent=fd.name;
       fb[f].querySelector(".fdesc").textContent=fd.desc;
     }
+    renderDiary();
     $("catPhoto").alt=T.catAlt;
     var tb=document.querySelectorAll("#thumbs button");
     for(var t=0;t<tb.length;t++) tb[t].title=T.thumbTitles[t] || "";
@@ -457,7 +472,7 @@
     var before=stageIdx(); S.growth+=n;
     if(stageIdx()!==before){
       say(fmt(T.grewSay, {name:S.name, stage:T.stages[stageIdx()].name}));
-      log(fmt(T.logGrew, {stage:T.stages[stageIdx()].name})); hearts(6); bounce();
+      log("logGrew", {stageIdx:stageIdx()}); hearts(6); bounce();
     }
   }
   function wakeCheck(action){
@@ -469,33 +484,33 @@
   /* ---------- actions ---------- */
   $("btnPet").onclick=function(){
     wakeCheck("pet"); setPhoto("main"); S.love=clamp(S.love+6); S.happy=clamp(S.happy+4);
-    grow(2); hearts(3); bounce(); say(fmt(T.petSay, {name:S.name})); log(T.logPet); render();
+    grow(2); hearts(3); bounce(); say(fmt(T.petSay, {name:S.name})); log("logPet"); render();
   };
   $("btnPlay").onclick=function(){
     wakeCheck("play"); setPhoto("play");
     if(S.energy<10){ say(T.playTired); return; }
     S.happy=clamp(S.happy+14); S.energy=clamp(S.energy-10); S.hunger=clamp(S.hunger-4); S.love=clamp(S.love+3);
-    grow(5); hearts(2); bounce(); say(T.playSay); log(T.logPlay); render();
+    grow(5); hearts(2); bounce(); say(T.playSay); log("logPlay"); render();
   };
   $("btnBath").onclick=function(){
     wakeCheck("bath"); setPhoto("main"); S.clean=clamp(100); S.happy=clamp(S.happy-4); S.energy=clamp(S.energy-6);
-    grow(3); say(T.bathSay); log(T.logBath); render();
+    grow(3); say(T.bathSay); log("logBath"); render();
   };
   $("btnGroom").onclick=function(){
     wakeCheck("groom"); setPhoto("main"); S.clean=clamp(S.clean+8); S.love=clamp(S.love+4); S.happy=clamp(S.happy+3);
-    grow(2); hearts(1); say(T.groomSay); log(T.logGroom); render();
+    grow(2); hearts(1); say(T.groomSay); log("logGroom"); render();
   };
   $("btnSleep").onclick=function(){
     S.sleeping=!S.sleeping;
-    if(S.sleeping){ say(T.sleepOnSay); log(T.logSleepOn); }
-    else { S.energy=clamp(S.energy+30); setPhoto("main"); say(T.sleepOffSay); log(T.logSleepOff); }
+    if(S.sleeping){ say(T.sleepOnSay); log("logSleepOn"); }
+    else { S.energy=clamp(S.energy+30); setPhoto("main"); say(T.sleepOffSay); log("logSleepOff"); }
     render();
   };
   $("btnWork").onclick=function(){
     wakeCheck("work"); setPhoto("main");
     if(S.energy<8){ say(T.workTired); return; }
     S.energy=clamp(S.energy-8); S.coins+=12; S.happy=clamp(S.happy+2);
-    grow(2); hearts(2); bounce(); say(T.workSay); log(T.logWork); render();
+    grow(2); hearts(2); bounce(); say(T.workSay); log("logWork"); render();
   };
   catBox.onclick=function(){ $("btnPet").onclick(); };
 
@@ -512,15 +527,15 @@
       if(S.coins<f.cost){ say(T.noCoins); return; }
       wakeCheck("feed"); setPhoto("main"); S.coins-=f.cost;
       S.hunger=clamp(S.hunger+f.hunger); S.happy=clamp(S.happy+f.happy); S.love=clamp(S.love+f.love);
-      grow(3); bounce(); say(fd.say); log(fmt(T.logFeed, {food:fd.name})); render();
+      grow(3); bounce(); say(fd.say); log("logFeed", {foodKey:key}); render();
     };
   }
   $("nameInput").addEventListener("change", function(){
-    var v=this.value.trim(); if(v){ S.name=v; say(fmt(T.renameSay, {name:v})); log(fmt(T.logRename, {name:v})); render(); }
+    var v=this.value.trim(); if(v){ S.name=v; say(fmt(T.renameSay, {name:v})); log("logRename", {name:v}); render(); }
   });
   $("btnReset").onclick=function(){
     if(confirm(T.confirmReset)){
-      S=fresh(); diaryEl.innerHTML=""; say(T.hello); log(T.logNew); render();
+      S=fresh(); LOG=[]; renderDiary(); say(T.hello); log("logNew"); render();
     }
   };
 
@@ -532,7 +547,7 @@
       S.hunger=clamp(S.hunger-2); S.happy=clamp(S.happy-1);
       S.clean=clamp(S.clean-1); S.energy=clamp(S.energy-1);
     }
-    if(S.ticks%6===0){ S.day+=1; log(T.logNewDay); }
+    if(S.ticks%6===0){ S.day+=1; log("logNewDay"); }
     if(S.ticks%5===0 && !S.sleeping) say(T.events[Math.floor(Math.random()*T.events.length)]);
     if(S.hunger<=15) say(T.hungry);
     else if(S.clean<=15) say(T.dirty);
@@ -542,7 +557,7 @@
 
   applyLang();
   say(T.hello);
-  log(fmt(T.logAdopt, {name:S.name}));
+  log("logAdopt", {name:S.name});
   render();
 })();
 </script>
