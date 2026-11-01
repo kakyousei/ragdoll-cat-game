@@ -41,12 +41,10 @@
   .cloud.c2{width:60px; top:74px; left:64%;}
   .cloud.c2::before{width:26px;height:26px;top:-12px;left:10px;}
   .cloud.c2::after{width:20px;height:20px;top:-8px;left:34px;}
-  .rug{position:absolute; left:50%; bottom:26px; transform:translateX(-50%);
-    width:270px; height:56px; border-radius:50%; background:radial-gradient(ellipse at center,#ffc2d4,#ff9ebb);}
   #catBox{position:relative; width:min(300px,88%); margin:56px auto 0; cursor:pointer; user-select:none;}
   #catPhoto{width:100%; height:330px; object-fit:cover; display:block; border-radius:18px;
     border:5px solid #fff; box-shadow:0 10px 24px rgba(90,50,30,.28); transition:opacity .18s ease;}
-  .thumbs{display:flex; gap:8px; justify-content:center; margin-top:10px;}
+  .thumbs{position:relative; display:flex; gap:8px; justify-content:center; margin-top:10px;}
   .thumbs button{border:3px solid transparent; border-radius:14px; padding:0; overflow:hidden; cursor:pointer; background:none; line-height:0;}
   .thumbs button.active{border-color:var(--pink-deep);}
   .thumbs img{width:54px; height:54px; object-fit:cover; display:block;}
@@ -123,7 +121,6 @@
   <div class="card">
     <div class="stage" id="stage">
       <div class="sun"></div><div class="cloud c1"></div><div class="cloud c2"></div>
-      <div class="rug"></div>
       <div id="catBox" title="">
         <div class="zzz">Z z z</div>
         <img id="catPhoto" src="" data-photo="main" alt="我们家的布偶猫">
